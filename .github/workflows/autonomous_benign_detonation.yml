@@ -1,4 +1,4 @@
-name: Autonomous KEIP Benign Detonation Worker (rdp1)
+name: Autonomous KEIP Benign Detonation Worker (rdp12)
 
 on:
   workflow_dispatch:
@@ -24,4 +24,4 @@ jobs:
           git config --global user.name "KEIP Worker"
           sudo git config --global user.email "worker@keip.research"
           sudo git config --global user.name "KEIP Worker"
-          sudo python3 step3.py --queue "rdp_worker_benign/rdp1_2_unique_pypi_packages.csv" --output "rdp_worker_benign/rdp1_3_analyzed_packages_output.jsonl"
+          sudo python3 step3.py --queue "rdp_worker_benign/rdp12_2_unique_pypi_packages.csv" --output "rdp_worker_benign/rdp12_3_analyzed_packages_output.jsonl"
