@@ -1,0 +1,45 @@
+name: TikTok-Boost-Worker
+on: workflow_dispatch
+
+jobs:
+  boost:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Install Desktop
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xfce4 xfce4-goodies tightvncserver tesseract-ocr
+
+      - name: Setup VNC
+        run: |
+          mkdir -p ~/.vnc
+          echo "${{ secrets.VNC_PASSWORD }}" | vncpasswd -f > ~/.vnc/passwd
+          chmod 600 ~/.vnc/passwd
+          vncserver :1 -geometry 1920x1080 -depth 24
+
+      - name: Tailscale Connect
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+
+      - name: Install Python Dependencies
+        run: |
+          pip install playwright pytesseract Pillow requests
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Clone Config and Run Worker
+        env:
+          DISPLAY: ":1"
+          CONFIG_TOKEN: ${{ secrets.CONFIG_TOKEN }}
+        run: |
+          echo "--- CONNECTION DETAILS ---"
+          echo "Server: $(tailscale ip -4):5901"
+          echo -n "Password: "
+          echo "${{ secrets.VNC_PASSWORD }}" | sed 's/./& /g'
+          echo "Username: runner"
+          echo "---------------------------"
+          git clone https://${CONFIG_TOKEN}@github.com/patrikakageyama/tiktok-boost-config.git boost_workspace
+          cd boost_workspace
+          python3 worker/worker.py
